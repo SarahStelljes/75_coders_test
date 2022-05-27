@@ -18,17 +18,24 @@
                 </div>
             </div>
             <div id="quiz-section">
-                <div id="quiz-menu">
+                <div id="quiz-menu" class="quiz">
                     <div>
                         <h2>Coding Quiz Challenge</h2>
                         <p>Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds.</p>
                     </div>
                     <button id="start-quiz" class="btn">Start Quiz</button>
                 </div>
-                <div id="quiz-questions">
+                <div id="quiz-questions" class="quiz">
+                    <div id="question-container">
+                        <h3 id="question-number"></h3>
+                        <p id="question"></p>
+                    </div>
+                    <form id="answer-container">
+                    </form>
                 </div>
             </div>
         </div>
     </main>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
