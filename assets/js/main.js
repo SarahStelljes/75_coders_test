@@ -40,6 +40,8 @@ var questionCount = 0;
 var qContainer = document.getElementById("question-container");
 var resultsDiv = document.getElementById("results");
 var aContainer = document.getElementById("answer-container");
+var timerNum = 75;
+let timerIntervNum;
 
 quizMenu.style.display = "flex";
 quizQuestions.style.display = "none";
@@ -67,25 +69,40 @@ var createQuestion = function(){
         answers.appendChild(qCard);
     }
 }
-// var startCountDown = function(){
-//     var startTimerNum = 75;
+var startCountDown = function(){
+    timerNum--;
+    if(timerNum >= 0){
+        timerEl.textContent = "Time Left: " + timerNum + " secs";
+    }
+    if(timerNum === 0){
+        theResults();
+    }
+    return timerIntervNum
+}
 
-// }
+var startQuiz = function(){
+    timerEl.textContent = "Time Left: " + timerNum + " secs";
+    timerIntervNum = setInterval(startCountDown, 1000);
+};
 
 var displayQuizHandler = function(){
     quizMenu.style.display = "none";
     quizQuestions.style.display = "flex";
-    // startCountDown();
+    startQuiz();
     createQuestion();
 }
 
 var theResults = function(){
+    var showScore = document.getElementById("score");
+    var qResults = document.querySelector("#question-results");
+    var whenDone = document.querySelector("#finish-status");
+
+    console.log(showScore);
+
     aContainer.style.display="none";
     qContainer.style.display="none";
     resultsDiv.style.display="flex";
     
-    var qResults = document.querySelector("#question-results");
-
     for(var i = 0; i < results.length; i++){
         var listEl = document.createElement("li");
         if(results[i] === "Correct"){
@@ -99,6 +116,18 @@ var theResults = function(){
         listEl.textContent = results[i];
 
         qResults.appendChild(listEl);
+    }
+    if(timerNum > 0){
+        whenDone.textContent = "All done!";
+        showScore.textContent += " "+timerNum;
+        clearInterval(timerIntervNum);
+        timerIntervNum = null;
+    }
+    else{
+        whenDone.textContent = "You ran out of time!";
+        showScore.textContent += " "+timerNum;
+        clearInterval(timerIntervNum);
+        timerIntervNum = null;
     }
 };
 
@@ -119,6 +148,7 @@ var changeQuestion = function(event){
         }
     }
     else if(targetEl.matches(".answer-button[answer-value='wrong']")){
+        timerNum = timerNum - 10;
         results.push("Wrong");
         qCard.remove();
         questionCount++;
