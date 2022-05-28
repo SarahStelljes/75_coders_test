@@ -38,10 +38,13 @@ var questions = [
 var results = [];
 var questionCount = 0;
 var qContainer = document.getElementById("question-container");
+var resultsDiv = document.getElementById("results");
+var aContainer = document.getElementById("answer-container");
 
 quizMenu.style.display = "flex";
 quizQuestions.style.display = "none";
 qContainer.style.display = "flex";
+resultsDiv.style.display = "none";
 
 var createQuestion = function(){
     var questionNum = document.querySelector("#question-number");
@@ -76,24 +79,55 @@ var displayQuizHandler = function(){
     createQuestion();
 }
 
+var theResults = function(){
+    aContainer.style.display="none";
+    qContainer.style.display="none";
+    resultsDiv.style.display="flex";
+    
+    var qResults = document.querySelector("#question-results");
+
+    for(var i = 0; i < results.length; i++){
+        var listEl = document.createElement("li");
+        if(results[i] === "Correct"){
+            listEl.style.backgroundColor = "var(--correct-answer)";
+        }
+        else if(results[i] === "Wrong"){
+            listEl.style.backgroundColor = "var(--wrong-answer)";
+        }
+
+        listEl.className = "answer-results";
+        listEl.textContent = results[i];
+
+        qResults.appendChild(listEl);
+    }
+};
+
 var changeQuestion = function(event){
     var targetEl = event.target;
     var qCard = document.querySelector("#question-card");
     
 
     if(targetEl.matches(".answer-button[answer-value='correct']")){
-        results.push("Correct!")
+        results.push("Correct")
+        qCard.remove();
+        questionCount++;
+        if(questionCount < 5){
+            createQuestion();
+        }
+        else{
+            theResults();
+        }
     }
     else if(targetEl.matches(".answer-button[answer-value='wrong']")){
-        results.push("Wrong.");
-    }
-    qCard.remove();
-    questionCount++;
-    if(questionCount < 5){
-        createQuestion();
-    }
-    else{
-        qContainer.style.display="none";
+        results.push("Wrong");
+        qCard.remove();
+        questionCount++;
+        if(questionCount < 5){
+            createQuestion();
+        }
+        else{
+            theResults();
+        }
     }
 }
 
