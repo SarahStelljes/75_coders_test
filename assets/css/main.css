@@ -111,6 +111,8 @@ main{
 #answer-container{
     width: 50%;
     height: 75%;
+    display: flex;
+    flex-direction: column;
 }
 #question-card{
     width: 100%;
@@ -170,6 +172,12 @@ main{
 #HighScore-list-background{
     background-color: var(--tertiary-color);
 }
+#hs-card{
+    padding: 1px;
+}
 #button-bar{
     display: flex;
+}
+#results-card{
+    padding: 1px;
 }

@@ -5,7 +5,9 @@ var answerContainer = document.querySelector("#answer-container");
 var formEl = document.querySelector("#result-form");
 var scoreBtn = document.querySelector("#view-scores");
 var goBack = document.querySelector("#go-back");
-var noHighScore = document.querySelector("#no-one");
+var hScoreBG = document.querySelector("#HighScore-list-background");
+var hScoreBGAll = document.querySelectorAll("div[id='hs-card']");
+var lResults = document.querySelector("#list-results");
 
 // Get Elements by Id
 var quizMenu = document.getElementById("quiz-menu");
@@ -86,7 +88,7 @@ var createQuestion = function(){
         qCard.appendChild(answerBtn);
         answers.appendChild(qCard);
     }
-}
+};
 var startCountDown = function(){
     timerNum--;
     if(timerNum >= 0){
@@ -96,9 +98,10 @@ var startCountDown = function(){
         theResults();
     }
     return timerIntervNum
-}
+};
 
 var startQuiz = function(){
+    timerNum = 75;
     timerEl.textContent = "Time Left: " + timerNum + " secs";
     timerIntervNum = setInterval(startCountDown, 1000);
 };
@@ -106,15 +109,35 @@ var startQuiz = function(){
 var displayQuizHandler = function(){
     quizMenu.style.display = "none";
     quizQuestions.style.display = "flex";
+    aContainer.style.display = "flex";
     document.getElementById("view-scores").ariaDisabled = true;
+    questionCount = 0;
     startQuiz();
     createQuestion();
-}
+};
+
+var rLCardDeletion = function(){
+    var getRCard = document.querySelector("#results-card");
+
+    lResults.removeChild(getRCard);
+};
 
 var theResults = function(){
     var showScore = document.getElementById("score");
-    var qResults = document.querySelector("#question-results");
     var whenDone = document.querySelector("#finish-status");
+
+    if(lResults.hasChildNodes === true){
+        rLCardDeletion();
+    }
+
+    var rLCard = document.createElement("div");
+    var rOrderedList = document.createElement("ol");
+
+    rLCard.id = "results-card";
+    rOrderedList.id = "results-ordered-list";
+
+    rLCard.appendChild(rOrderedList);
+    lResults.appendChild(rLCard);
 
     console.log(showScore);
 
@@ -122,6 +145,9 @@ var theResults = function(){
     qContainer.style.display="none";
     resultsDiv.style.display="flex";
     
+
+
+    showScore.textContent = "Score:";
     for(var i = 0; i < results.length; i++){
         var listEl = document.createElement("li");
         if(results[i] === "Correct"){
@@ -134,7 +160,10 @@ var theResults = function(){
         listEl.className = "answer-results";
         listEl.textContent = results[i];
 
-        qResults.appendChild(listEl);
+        rOrderedList.appendChild(listEl);
+    }
+    while(results.length >  0){
+        results.splice(0, 1);
     }
     if(timerNum > 0){
         whenDone.textContent = "All done!";
@@ -178,7 +207,7 @@ var changeQuestion = function(event){
             theResults();
         }
     }
-}
+};
 
 var saveScore = function(event){
     event.preventDefault();
@@ -193,42 +222,75 @@ var saveScore = function(event){
     localStorage.setItem("scores", JSON.stringify(highScores));
 
     displayHighScores();
+    loadHighScores();
 };
 
 var displayHighScores = function(){
     quizContainer.style.display = "none";
     hScoreDiv.style.display = "flex";
-    loadHighScores();
+};
+
+var hSListRemove = function(){
+    var getHSCard = document.querySelector("#hs-card");
+
+   getHSCard.remove();
 };
 
 var loadHighScores = function(){
-    var highScoreList = document.querySelector("#ordered-list");
-    var anyHighScores = highScores.push(localStorage.getItem("scores"));
-    if(anyHighScores !== 0){
+    var anyHighScores = localStorage.getItem("scores");
+    if(anyHighScores){
+        var noHighScore = document.querySelector("#no-one");
+        if(hScoreBGAll.length > 0){
+            console.log("There is something there! REMOVE IT!")
+            hScoreBGAll[0].remove();
+        }
+
+        var hsCard = document.createElement("div");
+        var hsOrderedList = document.createElement("ol");
+
+        hsCard.id = "hs-card";
+        hsOrderedList.id = "hs-ol";
+
+        hsCard.appendChild(hsOrderedList);
+        hScoreBG.appendChild(hsCard);
+
         noHighScore.textContent = "";
         if(highScores === null){
             highScores = [];
         }
-
-        highScores = JSON.parse(highScores);
-        for(var i = 0; i < highScores.length; i++){
+        anyHighScores = JSON.parse(anyHighScores);
+        for(var i = 0; i < anyHighScores.length; i++){
+            highScores.push(anyHighScores[i]);
             var listItemEl = document.createElement("li");
             listItemEl.textContent = "Initials: " + highScores[i].name + ", Score: " + highScores[i].score;
-            highScoreList.appendChild(listItemEl);
+            hsOrderedList.appendChild(listItemEl);
         }
     }
     else{
+        var noHighScore = document.createElement("p");
+    
+        noHighScore.id = "no-one";
+        
         noHighScore.textContent = "No one has done the test yet.";
+
+        hScoreBG.appendChild(noHighScore);
     }
-}
+};
 
 var goBackToMenu = function(){
+    var getNoHighScore = document.querySelector("#no-one");
+    if(hScoreBG.hasChildNodes === true){
+        hScoreBG.removeChild(getNoHighScore);
+    }
+
     quizContainer.style.display = "flex";
     hScoreDiv.style.display = "none";
     quizMenu.style.display = "flex";
     quizQuestions.style.display = "none";
     qContainer.style.display = "flex";
     resultsDiv.style.display = "none";
+
+
 
     document.querySelector("#view-scores").ariaDisabled = false;
 };
@@ -239,4 +301,4 @@ startBtn.addEventListener("click", displayQuizHandler);
 answerContainer.addEventListener("click", changeQuestion);
 formEl.addEventListener("submit", saveScore);
 scoreBtn.addEventListener("click", displayHighScores);
-goBack.addEventListener("click", goBackToMenu)
+goBack.addEventListener("click", goBackToMenu);
