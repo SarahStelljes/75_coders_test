@@ -1,8 +1,22 @@
+// Query Selectors
 var timerEl = document.querySelector("#timer");
 var startBtn = document.querySelector("#start-quiz");
+var answerContainer = document.querySelector("#answer-container");
+var formEl = document.querySelector("#result-form");
+var scoreBtn = document.querySelector("#view-scores");
+var goBack = document.querySelector("#go-back");
+var noHighScore = document.querySelector("#no-one");
+
+// Get Elements by Id
 var quizMenu = document.getElementById("quiz-menu");
 var quizQuestions = document.getElementById("quiz-questions");
-var answerContainer = document.querySelector("#answer-container");
+var qContainer = document.getElementById("question-container");
+var resultsDiv = document.getElementById("results");
+var aContainer = document.getElementById("answer-container");
+var hScoreDiv = document.getElementById("high-scores");
+var quizContainer = document.getElementById("quiz-container");
+
+// arrays/object arrays
 var questions = [
     {
         name: "Question 1",
@@ -36,17 +50,21 @@ var questions = [
     }
 ];
 var results = [];
+var highScores = [];
+
+// number variables
 var questionCount = 0;
-var qContainer = document.getElementById("question-container");
-var resultsDiv = document.getElementById("results");
-var aContainer = document.getElementById("answer-container");
 var timerNum = 75;
+
+// undefined variable
 let timerIntervNum;
 
+//
 quizMenu.style.display = "flex";
 quizQuestions.style.display = "none";
 qContainer.style.display = "flex";
 resultsDiv.style.display = "none";
+hScoreDiv.style.display = "none";
 
 var createQuestion = function(){
     var questionNum = document.querySelector("#question-number");
@@ -88,6 +106,7 @@ var startQuiz = function(){
 var displayQuizHandler = function(){
     quizMenu.style.display = "none";
     quizQuestions.style.display = "flex";
+    document.getElementById("view-scores").ariaDisabled = true;
     startQuiz();
     createQuestion();
 }
@@ -161,5 +180,63 @@ var changeQuestion = function(event){
     }
 }
 
+var saveScore = function(event){
+    event.preventDefault();
+
+    var initialInput = document.querySelector("input").value;
+    var scoreDataObj = {
+        name: initialInput,
+        score: timerNum
+    };
+    highScores.push(scoreDataObj);
+
+    localStorage.setItem("scores", JSON.stringify(highScores));
+
+    displayHighScores();
+};
+
+var displayHighScores = function(){
+    quizContainer.style.display = "none";
+    hScoreDiv.style.display = "flex";
+    loadHighScores();
+};
+
+var loadHighScores = function(){
+    var highScoreList = document.querySelector("#ordered-list");
+    var anyHighScores = highScores.push(localStorage.getItem("scores"));
+    if(anyHighScores !== 0){
+        noHighScore.textContent = "";
+        if(highScores === null){
+            highScores = [];
+        }
+
+        highScores = JSON.parse(highScores);
+        for(var i = 0; i < highScores.length; i++){
+            var listItemEl = document.createElement("li");
+            listItemEl.textContent = "Initials: " + highScores[i].name + ", Score: " + highScores[i].score;
+            highScoreList.appendChild(listItemEl);
+        }
+    }
+    else{
+        noHighScore.textContent = "No one has done the test yet.";
+    }
+}
+
+var goBackToMenu = function(){
+    quizContainer.style.display = "flex";
+    hScoreDiv.style.display = "none";
+    quizMenu.style.display = "flex";
+    quizQuestions.style.display = "none";
+    qContainer.style.display = "flex";
+    resultsDiv.style.display = "none";
+
+    document.querySelector("#view-scores").ariaDisabled = false;
+};
+
+loadHighScores();
+
 startBtn.addEventListener("click", displayQuizHandler);
 answerContainer.addEventListener("click", changeQuestion);
+formEl.addEventListener("submit", saveScore);
+scoreBtn.addEventListener("click", displayHighScores);
+goBack.addEventListener("click", goBackToMenu)
